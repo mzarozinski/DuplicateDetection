@@ -1,376 +1,317 @@
 
-import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  *
- * @author zeki
+ * @author zeki 
+ * Modified: 6/2013 Michael Z
  */
 public class BarrelGenerator {
 
-  //  static String uniquesFolder = "/lustre/work3/manmatha/efcan/Dupp_Data/English/Clean_Large_Set_English_Unq/";
-    public static void main ( String args[] ){
-    /*    int u1 = 11223;
-        int u2 = 19162;
-        int c = 630; 	
-        int lcs = 3226;
-     //   calculateScore(u1,u2,c,lcs);
-        double score = 0.22;
-     //   calculateBound2( u1 , u2 , score);
-      */
-   //     String word = "aof";
-     //   System.out.println(word.hashCode() + " -> " + littleEndian2(word.hashCode()));
-     //   System.out.println(word.hashCode() + " -> " + littleEndian2(littleEndian2(word.hashCode())));
-     //   System.out.println(Integer.toBinaryString(littleEndian2(littleEndian2(word.hashCode()))) + " " + Integer.toBinaryString(littleEndian2(word.hashCode())) + "\n"+ Integer.toBinaryString(word.hashCode()));
-       // checkHashCode();
-    //    int i = 2^10 + 2^5 + 2^20;
+    static Pattern ignoreCharsPattern = null; // pre-compiled regex for matching
+    static String inFile = null; // file with list of books to process
+    static String outFile = null; // name of the file to write the output to
+    static Integer startFileIdx = null;    // file to start with (from inFile)
+    static Integer endFileIdx = null;    // file to end with (from inFile)
 
-     //   System.out.println("yokeeee".hashCode()+ " - " + getHashCode("yokeeee"));
+    public static void main(String args[]) throws IOException {
 
-
-        
-   //     byte[] r = littleEndian3(i);
-   //     int a = littleEndian3b(r);
-   //     a = 147808000;
-   //     System.out.println(Integer.reverseBytes(a) + " - "+ littleEndian2(a));
-   //     System.out.println(Integer.reverseBytes(Integer.reverseBytes(a)));
-
-   //     System.out.println(i + " " + Integer.toBinaryString(i));
-    //    System.out.println(Integer.toBinaryString(a));
-    //    System.out.println(Byte.toString(r[0]) + " " + Byte.toString(r[1])  + " "+ Byte.toString(r[2])+ " "  +Byte.toString(r[3]) );
-
-        //System.out.println(word.hashCode() + " -> " + littleEndian(word.hashCode()) & 0xFF);
-
-       // generateQsubLines();
-       // generateQsubLinesDetector();
-        
-      //  changeFormat("100k_list.txt", "CS_RESULTS.txt", "CS_RESULTS_PROCESSED.txt");
-      //  changeFormat("100k_list.txt", "ITS_RESULTS.txt", "ITS_RESULTS_PROCESSED.txt");
-      //    changeFormat("100k_list.txt", "ITS_2000_LIMIT.txt", "ITS_2000_LIMIT_PROCESSED2.txt");
-      //  return;
-        
-        int from = Integer.parseInt(args[0]);
-        int to = Integer.parseInt(args[1]);
-
-      //  System.out.println(args[0] + " " + args[1] );
-        binarizeFiles("/lustre/work3/manmatha/efcan/Dupp_Data/English/ListFiles/100k_files.txt", "/lustre/work3/manmatha/zeki/DuplicateDetectionC/barrel_" + args[0] + ".bar", from, to);
-       // System.out.println("!!!! done");
+        readCommandLine(args);
+        binarizeFiles();
 
     }
 
-/*
-    public static void changeFormat(String fileList, String processingResult, String outputFile){
+    // write out all the unique words in a book in binary format. Multiple books
+    // are written to a single "barrel"
+    public static void binarizeFiles() { // String fileList, String outFile, int from, int to) {
+        String list = readFile(inFile);
+        String[] files = list.split("[\n]");
 
-        String [] lines = TextPreprocessor.readFile(fileList).split("\\s+");
-        String [] output = TextPreprocessor.readFile(processingResult).split("[\n]");
-        StringBuilder result = new StringBuilder();
-        for ( int i = 0; i < output.length; i++ ) {
-            String col [] = output[i].split("[\t]");
-
-            int index = Integer.parseInt(col[0]);
-            int index2 = Integer.parseInt(col[1]);
-
-            String out = lines[index] + "\t" + lines[index2] + "\t";
-            for ( int j = 2 ; j < 5; j++ ) {
-                out += col[j] + "\t";
-            }
-            out += col[ col.length-1 ] + "\n";
-            
-            result.append(out);
+        // make sure we have a start/end index
+        if (startFileIdx == null) {
+            startFileIdx = 0;
         }
-        try {
-            new FileWriter(new File(outputFile)).append(result.toString()).close();
-        } catch (IOException ex) {
-            
+        if (endFileIdx == null) {
+            endFileIdx = files.length; // process whole list
         }
-    }
+        // make sure, if there is an end index specified, it's not over the
+        // actual file count
+        endFileIdx = Math.min(endFileIdx, files.length);
 
-
-
-    public static void changeFormat2(String fileList, String processingResult, String outputFile){
-
-        String [] lines = TextPreprocessor.readFile(fileList).split("\\s+");
-        String [] output = TextPreprocessor.readFile(processingResult).split("[\n]");
-        StringBuilder result = new StringBuilder();
-        for ( int i = 0; i < output.length; i++ ) {
-            String col [] = output[i].split("[\t]");
-
-            int index = Integer.parseInt(col[0]);
-            int index2 = Integer.parseInt(col[1]);
-
-            //String out = lines[index] + "\t" + lines[index2] + "\t";
-            String out = extractFilename(lines[index]) + "\t" + extractFilename(lines[index2]) + "\t";
-
-            for ( int j = 2 ; j < 5; j++ ) {
-                out += col[j] + "\t";
-            }
-            out += col[ col.length-1 ] + "\n";
-
-            result.append(out);
-        }
-        try {
-            new FileWriter(new File(outputFile)).append(result.toString()).close();
-        } catch (IOException ex) {
-
-        }
-    }
-    */
-    public static String extractFilename(String s){
-        if ( s == null || s.equals("")){
-            return "";
-        }else{
-            int start = s.lastIndexOf("\\") + 1;
-            if ( start == 0 ){
-                start = s.lastIndexOf('/') + 1;
-            }
-
-            int end = s.lastIndexOf('.');
-            if ( end == -1){
-                end = s.length();
-            }
-            return s.substring(start, end);
-        }
-    }
-
-    public static void generateQsubLines(){
-
-        int jobsPerComp = 2000;
-        int totalJobs = 104000;
-
-        StringBuilder builder = new StringBuilder();
-        for ( int i = 0 ; i < totalJobs; i= i + jobsPerComp ){
-            builder.append("qsub -b y -cwd java BarrelGenerator " + i + " " + (i + jobsPerComp) + "\n");
-        }
-        try {
-//            new FileWriter(new File("/lustre/work3/manmatha/zeki/DuplicateDetectionC/qsub_commands_100K_dataset.sh")).append(builder.toString()).close();
-             new FileWriter(new File("qsub_barrels_100K_dataset.sh")).append(builder.toString()).close();
-        } catch (IOException ex) {
-        }
-    }
-
-    public static void generateQsubLinesDetector(){
-
-        int jobsPerComp = 2000;
-        int totalJobs = 104000;
-
-        StringBuilder builder = new StringBuilder();
-        for ( int i = 0 ; i < totalJobs; i= i + jobsPerComp ){
-            builder.append("qsub -b y -cwd ./DuplicateDetector /lustre/work3/manmatha/zeki/DuplicateDetectionC/barrel_" + i + ".bar " + i + ".txt 0.1\n");
+        // if no out file was specified, use the input file name (modified a bit)
+        if (outFile == null) {
+            // "standard" for output files is filename_<startFileIdx>.bar
+            outFile = inFile.substring(0, inFile.length() - 4) + "_" + startFileIdx.toString() + ".bar";
         }
 
-        for ( int i = 0 ; i < totalJobs; i= i + jobsPerComp ){
-            for ( int j = i ; j < totalJobs; j= j + jobsPerComp ){
-                if ( i == j ){continue;}
-                builder.append("qsub -b y -cwd ./DuplicateDetector /lustre/work3/manmatha/zeki/DuplicateDetectionC/barrel_" + i + ".bar /lustre/work3/manmatha/zeki/DuplicateDetectionC/barrel_" + j + ".bar " + i + "_" + j + ".txt 0.1\n");
-            }
-       }
+        int numberOfDocs = (endFileIdx - startFileIdx);
 
         try {
-            new FileWriter(new File("qsub_detector_commands_100K_dataset.sh")).append(builder.toString()).close();
-
-        //    new FileWriter(new File("/lustre/work3/manmatha/zeki/DuplicateDetectionC/qsub_commands_100K_dataset.sh")).append(builder.toString()).close();
-        } catch (IOException ex) {
-        }
-    }
-
-    public static void binarizeFiles(String fileList, String outFile, int from, int to){
-        String list =  readFile(fileList);
-        String [] files = list.split("[\n]");
-        int numberOfDocs = (to-from);
-        DataOutputStream os;
-        try {
-
-            int maxSize = numberOfDocs * 50000;
-            int [] data = new int [maxSize];
+            int maxSize = numberOfDocs * 50000;  // This may get resized below if needed
+            int[] data = new int[maxSize];
             data[0] = numberOfDocs;
-            int base = numberOfDocs*3+1;
+            int base = numberOfDocs * 3 + 1;
             int counter = base;
+            int bookLen = 0;
+            for (int bookIdx = startFileIdx; bookIdx < files.length && bookIdx < endFileIdx; bookIdx++) {
+                String words[] = readFile(files[bookIdx].trim()).split(System.getProperty("line.separator"));
 
-         //   int numOfBooks = 0;
-            for ( int i = from ; i < files.length && i < to; i++ ){
-                String filename = files[i].trim();
-                System.out.println(files[i]);
-                String words[] = readFile(filename).split("[\n]");
+                // create LinkedHashMap (with initial capacity specified) for this book to store the tokens and their frequencies.
+                // Using LinkedHashMap as opposed to a HashMap because the order in which the words
+                // are encountered is important. HashMap does not guarentee order. 
+                // In the future, we might want to be clever when specifing the initial capacity by estimating the 
+                // number of uniq words based on the number of lines in the book.
+                LinkedHashMap<String, Integer> bookMap = new LinkedHashMap<String, Integer>(2048);
 
-                int bookLen = 0;
-              //  if ( words[0].split("[\t]")[0].equals("")){ // the first token may be an empty string, ignore it
-               //    bookLen--;
-              //  }
-                for ( int j = 0 ; j < words.length; j++){
-                     String word[] = words[j].split("[\t]");
-                  //   if ( !word[0].equals("") ) {
-                        int hashCode = getHashCode(word[0]);
-                        if ( hashCode < 0 ) {
-                            hashCode *= -1;
-                        }else if ( hashCode == 0 ) {
-                            hashCode = 1; // something positive
-                        }                        
-                        data[counter] = hashCode;
-                        counter++;
-                        bookLen++;
-                  //   }
-                 }
+                bookLen = 0; // starting a new book
+                int bookUniqWordCount = 0;
+                // loop through each line of the book
+                for (int j = 0; j < words.length; j++) {
 
-                int index = (i-from);
-                data[index+1] = i;
-                data[numberOfDocs + index + 1] = bookLen;
-                data[numberOfDocs*2 + index + 1] = bookLen;
+                    // remove any "ignore characters" and extra spaces then split by whitespace
+                    String word[] = ignoreCharsPattern.matcher(words[j]).replaceAll("").trim().split("[\\s+]");
 
-            }
-       //     data[0] = (i-from);
+                    // count frequencies of each work in a book
+                    for (String token : word) {
+                        if (!token.equals("")) {
+                            Integer freq = bookMap.get(token);
+                            if (freq == null) {
+                                bookMap.put(token, 1);
+                                bookUniqWordCount++;
+                            } else {
+                                bookMap.put(token, freq + 1);
+                                if (freq == 1) {
+                                    bookUniqWordCount--;
+                                }
+                            }
+                            bookLen++;
+                        }
+                    }
 
+                }// end loop through a book
 
-            // write the file
-            os = new DataOutputStream(new FileOutputStream(outFile));
-           // BufferedOutputStream buf = new BufferedOutputStream(os);
-        //    for (int i = 0; i < data.length && i < counter; i++ ) {
-               // os.writeInt ( littleEndian2(data[i]));
-                // TODO: change the hash function
-              //  System.out.println(data[i]);
-        //        os.writeInt ( Integer.reverseBytes(data[i]));
-                //  buf.write ( Integer.reverseBytes(data[i]) );
-         //   }
-
-            // create a byte array
-            byte [] b = new byte[4*counter];
-            for (int i = 0; i < data.length && i < counter; i++ ) {
-                int index = i*4;
-                b[index] =   (byte) (data[i] & 0x000000FF);
-                b[index+1] = (byte) ((data[i] & 0x0000FF00) >>>  8 );
-                b[index+2] = (byte) ((data[i] & 0x00FF0000) >>> 16 );
-                b[index+3] = (byte) ((data[i] & 0xFF000000) >>> 24 );
-            }
-            os.write(b);
-          //  buf.flush();
-          //  buf.close();
-            os.close();
-           // System.out.println(counter + "\t" + data[0]);
-
-        } catch (Exception ex) {
-        }
-    }
-
-    public static void checkHashCode(){
-        String filename = "stonesquarries00howerich_djvu.xml.data";
-        String words[] = readFile(filename).split("[\n]");
-
-                int bookLen = words.length;
-                if ( words[0].split("[\t]")[0].equals("")){ // the first token may be an empty string, ignore it
-                   bookLen--;
+                // IF writing out they uniq words will blow out the array, 
+                // increase the data size
+                if (counter + bookUniqWordCount > maxSize - 1) {
+                    // for now, just double the memory
+                    maxSize = maxSize << 1;
+                    int[] tmp = new int[maxSize];
+                    System.arraycopy(data, 0, tmp, 0, data.length);
+                    data = tmp;
                 }
-             //   int index = (i-from);
-             //   data[index+1] = i;
-             //   data[numberOfDocs + index + 1] = bookLen;
-             //   data[numberOfDocs*2 + index + 1] = bookLen;
-                int [] data = new int[bookLen];
-                for ( int j = 0 ; j < words.length; j++){
-                     String word[] = words[j].split("[\t]");
-                     if ( !word[0].equals("") ) {
-                        int hashCode = word[0].hashCode();
-                        if ( hashCode < 0 ) {
+                // get only the tokens with a frequency of 1
+                for (Map.Entry<String, Integer> entry : bookMap.entrySet()) {
+                    if (entry.getValue().equals(1)) {
+                        int hashCode = entry.getKey().hashCode();
+                        // TODO would be faster to do:
+                        // hashCode &= 0x7FFFFFFF 
+                        // but that only ensures positive numbers, doesn't take absolute value, not sure if that's OK
+                        if (hashCode < 0) {
                             hashCode *= -1;
-                        }else if ( hashCode == 0 ) {
+                        } else if (hashCode == 0) {
                             hashCode = 1; // something positive
                         }
-                        //data[j] = Integer.reverseBytes(hashCode);
-                        data[j] = hashCode;
-                        System.out.println(j + " -> " + data[j]);
-                     }
-                 }
-               // Integer.toBinaryString(1206629809);
-               // Integer.toBinaryString(108004200);
+                        data[counter] = hashCode;
+                        counter++;
+                    } // end word is unique
+                } // end loop through word frequencies
 
+                int index = (bookIdx - startFileIdx);
+                data[index + 1] = bookIdx; // doc id
+                data[numberOfDocs + index + 1] = bookLen;
+                data[numberOfDocs * 2 + index + 1] = bookUniqWordCount; // # uniq words in the doc
 
-    }
+            } // end loop through list of files
 
-    public static int getHashCode(String s) {
-	int h = 0;
-	int off = 0;
+            // write the file
+            DataOutputStream os = new DataOutputStream(new FileOutputStream(outFile));
 
-        int len = s.length();
-        char val[] = new char[len];
-        s.getChars(0, len, val, 0);
+            // create a byte array
+            byte[] b = new byte[4 * counter];
+            for (int i = 0; i < data.length && i < counter; i++) {
+                int index = i * 4;
+                b[index] = (byte) (data[i] & 0x000000FF);
+                b[index + 1] = (byte) ((data[i] & 0x0000FF00) >>> 8);
+                b[index + 2] = (byte) ((data[i] & 0x00FF0000) >>> 16);
+                b[index + 3] = (byte) ((data[i] & 0xFF000000) >>> 24);
+            }
+            os.write(b);
+            os.close();
 
-        for (int i = 0; i < len; i++) {
-           h = 31*h + val[off++];
+        } catch (Exception ex) {
+            System.err.println(ex.toString());
         }
-        return h;
+
+    } // end binarizeFiles()
+
+    private static String readFile(String filename) {
+        BufferedReader in = null;
+        StringBuffer buf = new StringBuffer();
+        try {
+            in = new BufferedReader(new FileReader(filename));
+            String line = null;
+            while ((line = in.readLine()) != null) {
+                if (line.trim().length() == 0) {
+                    continue;
+                }
+                buf.append(line);
+                buf.append(System.getProperty("line.separator"));
+            }
+        } catch (Exception ex) {
+            System.err.println("Error reading file: " + filename);
+            System.exit(1);
+        }
+        return buf.toString();
     }
 
+    // function to get any configuration parameters for the program
+    private static void readConfigFile(String fileName) throws IOException {
 
-   public static int littleEndian2(int a){
+        if (fileName == null) {
+            return;
+        }
 
-        int r1 = ((int)a & 0x000000FF) << 24;
-        int r2 = ((int)a & 0x0000FF00) << 8;
-        int r3 = ((int)a & 0x00FF0000) >>> 8;
-        int r4 = ((int)a & 0xFF000000) >>> 24;
+        boolean blnIgnorePunctuation = false;
+        boolean blnIgnoreNumbers = false;
 
-        return (int)(r1 | r2 | r3 | r4);
-    }
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new FileReader(new File(fileName)));
 
+            String line = null;
 
-    public static void calculateScore(int u1 , int u2 , int c, int lcs){
-        double score = Math.log(lcs)/Math.log(u1+u2-lcs);
-        System.out.println(score);
-    }
-    public static void calculateBound(int u1 , int u2 , double score){
+            line = reader.readLine().trim().toLowerCase();
 
-        double t = Math.exp(score * Math.log(u1+u2) );
-        double t2 =  Math.exp(score * Math.log(u1+u2-t) );
-        System.out.println(t + " " + t2);
-    }
+            while (line != null) {
+                String[] tokens = line.split("=");
+                int numOfArgs = tokens.length;
+                if (numOfArgs > 0) {
 
-    public static void calculateBound2(int u1 , int u2 , double score){
+                    if (tokens[0].equalsIgnoreCase("ignorePunctuation")) {
+                        if (line.substring(line.indexOf('=') + 1).equalsIgnoreCase("true")) {
+                            blnIgnorePunctuation = true;
+                        }
+                    } else if (tokens[0].equalsIgnoreCase("ignoreNumbers")) {
+                        if (line.substring(line.indexOf('=') + 1).equalsIgnoreCase("true")) {
+                            blnIgnoreNumbers = true;
+                        }
+                    } else {
+                        System.err.println("UNKNOWN OPTION: \"" + tokens[0] + "\" ->IGNORING...");
+                    }
+                } else {
+                    System.err.println("Error in the configuration file. Skipping the parameter at line:" + line);
+                }
 
-        double t = score * Math.sqrt((double)u1*(double)u2) ;
-        System.out.println(t);
-    }
+                line = reader.readLine();
 
+            }
+        } catch (Exception ex) {
+            System.err.println("Error: Can not read configuration file -> " + fileName);
+            System.exit(0);
+        } finally {
+            if (reader != null) {
+                reader.close();
+            }
+        }
 
-
-    public static String readFile(String filename) {
-
-        File file = new File(filename);
-        return readFile(file);
-    }
-
-    public static String readFile(File file) {
-
-        if ( file == null || !file.exists()) { return null;}
-
-        StringBuffer bufc = null;
-        FileReader fr = null;
+        // pre-compile the regex so we only incure the cost once
+        String regex = null;
+        if (blnIgnorePunctuation && blnIgnoreNumbers) {
+            regex = "[^a-zA-Z\\s]";
+        } else if (blnIgnorePunctuation) {
+            regex = "[^a-zA-Z0-9\\s]";
+        } else if (blnIgnoreNumbers) {
+            regex = "[0-9]"; // just remove numbers
+        } else {
+            regex = "";
+        }
 
         try {
-            fr = new FileReader(file);
-
-            int theChar;
-            bufc = new StringBuffer();
-
-            while (((theChar = fr.read()) != -1)) {
-                bufc.append((char) theChar);
-            }
-        } catch (IOException ioe) {
-            System.out.println("TextPreprocessor: Can not read the file "  + file.getAbsolutePath());
-        } finally {
-            if (fr != null) {
-                try {
-                    fr.close();
-                } catch (IOException ioe) {
-                }
-            }
+            ignoreCharsPattern = Pattern.compile(regex);
+        } catch (Exception ex) {
+            System.err.println("Error processing characters to ignore: " + ex.toString());
+            System.exit(1);
         }
-        fr = null;
-        return bufc.toString();
-    }
+
+    } // end readConfigFile
+
+    private static void readCommandLine(String args[]) {
+
+        // split the switch and the value
+        for (String arg : args) {
+            String flag = null;
+            String value = null;
+            try {
+                flag = arg.substring(0, 2);
+                value = arg.substring(2);
+            } catch (Exception ex) {
+                System.err.println("Inavlid command line argument: " + arg);
+                usage();
+                System.exit(1);
+            }
+
+            switch (flag.toLowerCase()) {
+
+                case "-i":
+                    inFile = value;
+                    break;
+                case "-o":
+                    outFile = value;
+                    break;
+                case "-s":
+                    startFileIdx = new Integer(value);
+                    break;
+                case "-e":
+                    endFileIdx = new Integer(value);
+                    break;
+                case "-c":
+                    try {
+                        // using same config file scheme as the recursive alignment tool
+                        readConfigFile(value.toString());
+                    } catch (Exception ex) {
+                        System.err.println("Error reading config file: " + ex.toString());
+                    }
+                    break;
+
+                default:
+                    System.err.println("Inavlid command line switch: " + flag);
+                    usage();
+                    System.exit(1);
+            } // end switch
+        } // end loop through args
+
+        // make sure we have an input file specified
+        if (inFile == null) {
+            System.err.println("No input file specified");
+            usage();
+            System.exit(1);
+        }
+    } // end readCommandLine
+
+    private static void usage() {
+        String USAGE = "\nBarrel Generator Copyright (C) 2013 by the University of Massachusetts at Amherst\n"
+                + "\nThis program comes with ABSOLUTELY NO WARRANTY. "
+                + "This is free software, and you are welcome to redistribute it under certain conditions;"
+                + " see the attached GNU licence for details.\n"
+                + "\nUSAGE: java BarrelGenerator -i<inputFilename> -s<startFileIndex> -e<endFileIndex> -c<configFile> -o<outputFilename>\n\n"
+                + "<inputFilename> is the text file that contains a list of files to process (including path)\n"
+                + "<startFileIndex> the row to start at in the input file\n"
+                + "<endFileIndex> the row to end before in the input file\n"
+                + "<outputFilename> (optional) is the filename for the output\n"
+                + "<configFile> (optional) file can contain the following arguments on each line:\n"
+                + "\tignorePunctuation=<TRUE|FALSE> (indiates if punctuations should be ignored. Default is TRUE)\n"
+                + "\tignoreNumbers=<TRUE|FALSE> (indiates if numeric characters should be ignored. Default is TRUE)\n";
+
+        System.err.println(USAGE);
+
+
+    } // end usage()
 }
