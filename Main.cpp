@@ -24,25 +24,6 @@ int main(int argc, char* argv[]){
 	DuplicateDetector * detector;
 	double threshold = 0.10;
 
-
-//	char filename1[] = "docPile1e.syn";
-//	synthetic_pile_generator(1000, 10000, &filename1[0]);
-//	char filename2[] = "docPile2e.syn";
-//	synthetic_pile_generator(40000, 10000, &filename2[0]);
-
-	// test 
-/*	char file1[] = "barrel_52000.bar";
-	char file2[] = "barrel_52000.bar";
-	char fileout[] = "out.syn";
-	detector = new DuplicateDetector( file1, fileout ,threshold);	
-
-//	detector = new DuplicateDetector( file1, file2, fileout ,threshold);	
-	detector->detectDuplicates();
-	printf("Time elapsed %d sec\n", (time(NULL)-seconds));
-	MyHashTable::freeMemory();
-	return 1;
-*/
-
 	if ( argc == 4){
 		threshold = atof(argv[3]);
 		if (threshold == 0.0f){
@@ -91,82 +72,3 @@ void synthetic_pile_generator(int numOfDocuments, int avgDocLength, char * filen
 	free(pile);
 
 }
-
-/*public char ** tokenize(char * s, char * delim){
-
-	// count the tokens
-	char * token = strtok(s,delim);
-
-}
-
-void binarizeFiles(char* fileList, char* outFile, int from, int to){
-
-        char * list =  readFile(fileList);
-        int numberOfDocs = (to-from);
-        FILE *f = fopen(filename, "wb");	
-        int maxSize = numberOfDocs * 50000;
-        int [] data = new int [maxSize];
-        data[0] = numberOfDocs;
-        int base = numberOfDocs*3+1;
-        int counter = base;
-		char * save1, * save2;
-
-		char * filename = strtok(list, "\n", &save1);
-
-		for ( int i = 0; filename != null && i < to; i++){
-			if ( i < from){
-				filename = strtok_r(list, "\n", &save1);
-				continue;
-			}
-
-			char * wordList = readFile(filename); 
-
-			char * word = strtok_r(wordList, "\n", &save2);
-			int numOfWords = 0;
-			while(word!= NULL){
-				if ( strcmp(word,"") == 0){
-					strok (wordList, "\n");
-				}
-			
-			}
-
-
-
-
-			filename = strtok_r(list, "\n", &save1);
-		}
-
-        for ( int i = from ; i < files.length && i < to; i++){
-                
-                
-                char * words[] = readFile(filename).split("[\n]");
-
-                int bookLen = words.length;
-                if ( words[0].split("[\t]")[0].equals("")){ // the first token may be an empty string, ignore it
-                   bookLen--;
-                }
-                data[i+1] = i;
-                data[numberOfDocs + i + 1] = bookLen;
-                data[numberOfDocs*2 + i + 1] = bookLen;
-
-                for ( int j = 0 ; j < words.length; j++){
-                     char * word[] = words[j].split("[\t]");
-                     if ( !word[0].equals("") ) {
-                        int hashCode = word[0].hashCode();
-                        if ( hashCode < 0 ) {
-                            hashCode *= -1;
-                        }else if ( hashCode == 0 ) {
-                            hashCode = 1; // something positive
-                        }                        
-                        data[counter] = hashCode;
-                        counter++;
-                     }
-                 }
-				
-        }
-
-		fwrite(pile, sizeof(int), (numOfDocuments*3 + numOfDocuments*avgDocLength + 1), f);
-		fclose(f);
-		free(pile);
-    }
-*/

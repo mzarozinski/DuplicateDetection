@@ -57,9 +57,19 @@ void DocPile::readPile(char * fname){
 
 	// locate data in the file
 	numOfDocs = data[0];
-	
-	printf("numofdocts = %d docIDs[0] = %d docLength = %d listLengths[0] = %d\n", numOfDocs, data[1], data[1+numOfDocs], data[1+2*numOfDocs]);
-	//printf("numofdocts = %d \n", numOfDocs);
+//        int count = 0;
+//	printf("numofdocts = %d \n", numOfDocs);
+//        for (int i = 0; i < numOfDocs; i++){
+//           printf("docIDs[%d] = %d docLength = %d # uniq words = %d\n", i, data[i+1], data[i+1+numOfDocs], data[i+1+2*numOfDocs]);
+//           printf("Data: ");
+//           for (int j = 0; j < data[i+1+2*numOfDocs]; j++ ){
+//                  printf("%i\t", data[numOfDocs*3 + 1 +  count  ]);            
+//                  count++;
+//           }
+//
+//               printf("\n");
+//        }
+	//
 	fflush(stdout);
 
 	docIDs = &data[1];
