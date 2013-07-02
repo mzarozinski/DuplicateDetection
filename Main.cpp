@@ -17,7 +17,7 @@ email:zeki@cs.umass.edu
 char usage[] = "USAGE:\nDuplicateDetector <docpile1> <docpile2> <outputfile> <threshold>\nOR\nDuplicateDetector <docpile1> <outputfile> <threshold>\n";
 void synthetic_pile_generator(int numOfDocuments, int avgDocLength, char * filename);
 
-// NOTE: none of the term ids should be zero. Make sure that they are positive. 
+// NOTE:  none of the term ids should be zero. Make sure that they are positive. 
 int main(int argc, char* argv[]){
 	time_t seconds;
 	seconds = time (NULL);

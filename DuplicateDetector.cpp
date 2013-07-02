@@ -122,14 +122,11 @@ void DuplicateDetector::detectDuplicatesInThePile() {
                 statPassed++;
 
                 // run LCS for the top K=2000 words for efficiency.	
-                if (common <= MAX_NUMBER_OF_UNIQUE_WORDS) {
-                    //LCSlength = LCS(seq1, seq2, common, common);	
+                if (common <= MAX_NUMBER_OF_UNIQUE_WORDS) {	
                     LCSlength = LCS(seq1, seq2, common, common);
-                    //LCSlength = LCS_fast(seq1, seq2, common, common, T);
                 } else {
                     LCSlength = LCS(seq1, seq2, MAX_NUMBER_OF_UNIQUE_WORDS, MAX_NUMBER_OF_UNIQUE_WORDS);
                     double ratio = (double) common / MAX_NUMBER_OF_UNIQUE_WORDS;
-                    //LCSlength = LCS_fast(seq1, seq2, MAX_NUMBER_OF_UNIQUE_WORDS, MAX_NUMBER_OF_UNIQUE_WORDS, T/ratio);
                     LCSlength = (int) (ratio * LCSlength);
                 }
 
@@ -145,14 +142,7 @@ void DuplicateDetector::detectDuplicatesInThePile() {
                     // output the book pair as duplicates
                     sprintf(charbuffer, "%d\t%d\t%d\t%d\t%d\t%d\n", p1->docIDs[i], p1->docIDs[j], docLength, otherDocLength, common, (int) LCSlength);
                     outfile << charbuffer;
-                    //	printf(charbuffer);
-                    //}
-                    //}
-                    //	free(seq1);
-                    //	free(seq2);
                 }
-                //printf("%d\n" , i);
-                //delete table;
             }
         }
     }
@@ -161,11 +151,6 @@ void DuplicateDetector::detectDuplicatesInThePile() {
 }
 
 void DuplicateDetector::detectDuplicatesBetweenPiles() {
-    // hash table needs ~ 0.5 Megabyte of space
-    //	int HASH_TABLE_SIZE = 10000;
-    //	int BUCKET_SIZE = 10;
-
-
 
     MyHashTable * table;
     int * data = p1->data;
@@ -195,8 +180,6 @@ void DuplicateDetector::detectDuplicatesBetweenPiles() {
         for (int j = 0; j < p2->numOfDocs; j++) {
 
             otherListLength = p2->listLengths[j];
-            //printf("%d %d\n",p1->docIDs[i], p2->docIDs[j]);	
-
             if (otherListLength == 0) {
                 continue;
             }
@@ -225,11 +208,9 @@ void DuplicateDetector::detectDuplicatesBetweenPiles() {
                 // run LCS for the top K=2000 words for efficiency.	
                 if (common <= MAX_NUMBER_OF_UNIQUE_WORDS) {
                     LCSlength = LCS(seq1, seq2, common, common);
-                    //LCSlength = LCS_fast(seq1, seq2, common, common, T);
                 } else {
                     LCSlength = LCS(seq1, seq2, MAX_NUMBER_OF_UNIQUE_WORDS, MAX_NUMBER_OF_UNIQUE_WORDS);
                     double ratio = (double) common / MAX_NUMBER_OF_UNIQUE_WORDS;
-                    //LCSlength = LCS_fast(seq1, seq2, MAX_NUMBER_OF_UNIQUE_WORDS, MAX_NUMBER_OF_UNIQUE_WORDS, T/ratio);
                     LCSlength = (int) (ratio * LCSlength);
                 }
 
@@ -246,15 +227,9 @@ void DuplicateDetector::detectDuplicatesBetweenPiles() {
                     // output the book pair as duplicates
                     sprintf(charbuffer, "%d\t%d\t%d\t%d\t%d\t%d\n", p1->docIDs[i], p2->docIDs[j], docLength, otherDocLength, common, (int) LCSlength);
                     outfile << charbuffer;
-                    //	printf(charbuffer);						
-                    //	}
-                    //	}
-                    //	free(seq1);
-                    //	free(seq2);
                 }
             }
         }
-        //printf("%d\t%d\t%d\n", p1->docIDs[i], p1->docLengths[i], p1->listLengths[i]);
     }
     printf("Passed = %d\n", statPassed);
     outfile.flush();
