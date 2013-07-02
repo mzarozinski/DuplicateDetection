@@ -16,7 +16,8 @@ class DuplicateDetector
 	DocPile *p2;
 	void detectDuplicatesInThePile();
 	void detectDuplicatesBetweenPiles();
-	
+ 
+
 
 	int * X;
 	int * Y;
