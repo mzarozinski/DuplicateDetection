@@ -114,11 +114,11 @@ void DuplicateDetector::detectDuplicatesInThePile() {
             T = (int) exp(dupThreshold * log((double) (otherDocLength + docLength - T_large))); // it underestimates T and its OK. Because T_large is larger than the actual LCS length necessary to classify these books as duplicates tuple. Therefore T is smaller than but close to the optimal threshold. 
 #else
             //2 - based on CS score (use real length)
-            T = (int) (dupThreshold * sqrt((double) otherDocLength * (double) docLength));
+            T = (int) (dupThreshold * sqrt((double) otherListLength * (double) listLength));
 #endif
 
             // filtering
-            if (1){ // (common >= T) {
+            if (common >= T) {
                 statPassed++;
 
                 // run LCS for the top K=2000 words for efficiency.	
@@ -139,9 +139,9 @@ void DuplicateDetector::detectDuplicatesInThePile() {
                 double score = log(LCSlength) / log((double) (otherDocLength + docLength - LCSlength));
 #else
                 // CS score
-                double score = LCSlength / sqrt((double) otherDocLength * (double) docLength);
+                double score = LCSlength / sqrt((double) otherListLength * (double) listLength);
 #endif
-                if (1){ // (score >= dupThreshold) {
+                if (score >= dupThreshold) {
                     // output the book pair as duplicates
                     sprintf(charbuffer, "%d\t%d\t%d\t%d\t%d\t%d\n", p1->docIDs[i], p1->docIDs[j], docLength, otherDocLength, common, (int) LCSlength);
                     outfile << charbuffer;
@@ -214,7 +214,10 @@ void DuplicateDetector::detectDuplicatesBetweenPiles() {
             T = (int) exp(dupThreshold * log((double) (otherDocLength + docLength - T_large))); // it underestimates T and its OK. Because T_large is larger than the actual LCS length necessary to classify these books as duplicates tuple. Therefore T is smaller than but close to the optimal threshold. 
 #else
             //2 - based on CS score (use real length)
-            T = (int) (dupThreshold * sqrt((double) otherDocLength * (double) docLength));
+            // MCZ - This is using total doc length but input is the binary file which just contains 
+            // uniq words - think this is an artifact of the barrel gen not using uniq
+           // T = (int) (dupThreshold * sqrt((double) otherDocLength * (double) docLength));
+           T = (int) (dupThreshold * sqrt((double) otherListLength * (double) listLength));
 #endif			
             // filtering
             if (common >= T) {
@@ -235,7 +238,9 @@ void DuplicateDetector::detectDuplicatesBetweenPiles() {
                 double score = log(LCSlength) / log((double) (otherDocLength + docLength - LCSlength));
 #else
                 // CS score
-                double score = LCSlength / sqrt((double) otherDocLength * (double) docLength);
+                // MCZ - trying list len
+               // double score = LCSlength / sqrt((double) otherDocLength * (double) docLength);
+               double score = LCSlength / sqrt((double) otherListLength * (double) listLength);
 #endif
                 if (score >= dupThreshold) {
                     // output the book pair as duplicates
