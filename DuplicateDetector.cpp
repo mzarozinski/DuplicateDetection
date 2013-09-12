@@ -9,6 +9,9 @@ U. of Massachusetts-Amherst
 email:zeki@cs.umass.edu
 
  */
+
+#define ITS
+
 #include "headers.h"
 #include "DuplicateDetector.h"
 #include "DocPile.h"
@@ -112,8 +115,8 @@ void DuplicateDetector::detectDuplicates() {
             // CALCULATE THE MINIMUM NUMBER OF COMMON WORDS REQUIRED FOR A PAIR TO BE A DUPLICATE. USE IT FOR FILTERING NEGATIVE PAIRS BEFORE ACTUAL ALIGNMENT (LCS)	
 #ifdef ITS					
             //1 - based on ITS score (note: the bound is not tightest. But It does not miss any true positive)
-            int T_large = (int) exp(dupThreshold * log((double) (otherDocLength + docLength))); // this statement overestimates T
-            T = (int) exp(dupThreshold * log((double) (otherDocLength + docLength - T_large))); // it underestimates T and its OK. Because T_large is larger than the actual LCS length necessary to classify these books as duplicates tuple. Therefore T is smaller than but close to the optimal threshold. 
+            int T_large = (int) exp(dupThreshold * log((double) (otherListLength + listLength))); // this statement overestimates T
+            T = (int) exp(dupThreshold * log((double) (otherListLength + listLength - T_large))); // it underestimates T and its OK. Because T_large is larger than the actual LCS length necessary to classify these books as duplicates tuple. Therefore T is smaller than but close to the optimal threshold. 
 #else
             //2 - based on CS score (use real length)
             T = (int) (dupThreshold * sqrt((double) otherListLength * (double) listLength));
@@ -135,14 +138,15 @@ void DuplicateDetector::detectDuplicates() {
                 // CALCULATE THE MINIMUM NUMBER OF COMMON WORDS REQUIRED FOR A PAIR TO BE A DUPLICATE. USE IT FOR FILTERING NEGATIVE PAIRS BEFORE ACTUAL ALIGNMENT (LCS)				
 #ifdef ITS
                 // ITS score
-                double score = log(LCSlength) / log((double) (otherDocLength + docLength - LCSlength));
+                double score = log(LCSlength) / log((double) (otherListLength + listLength - LCSlength));
 #else
                 // CS score
                 double score = LCSlength / sqrt((double) otherListLength * (double) listLength);
 #endif
                 if (score >= dupThreshold) {
                     // output the book pair as duplicates
-                    sprintf(charbuffer, "%d\t%d\t%d\t%d\t%d\t%d\n", p1->docIDs[i], second_pile->docIDs[j], docLength, otherDocLength, common, (int) LCSlength);
+                 //   sprintf(charbuffer, "%d\t%d\t%d\t%d\t%d\t%d\n", p1->docIDs[i], second_pile->docIDs[j], docLength, otherDocLength, common, (int) LCSlength);
+                      sprintf(charbuffer, "%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n", p1->docIDs[i], second_pile->docIDs[j], docLength, otherDocLength, listLength, otherListLength, common, (int) LCSlength);
                     outfile << charbuffer;
                 }
             }
