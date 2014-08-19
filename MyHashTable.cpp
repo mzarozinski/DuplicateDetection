@@ -25,35 +25,13 @@ char * MyHashTable::accessed = (char *) calloc(MAX_DOC_SIZE, sizeof (char));
 // system calls are avoided. 
 
 MyHashTable::~MyHashTable(void) {
-
-    // first free all extended buckets
-    /*	for ( int i = 0 ; i < HASH_TABLE_SIZE; i++){
-                    int * bucket = hashTable[i];
-                    if ( bucket[0] > BUCKET_SIZE ){
-                            free(bucket); 
-                    }	
-            }
-     */
-
-    // free the hashtable
-    //	free(hashTable);
-    // free the array buckets.
-    //	free(buckets);
-    // free the accessed flags.
-    //	free(accessed);
-    // free lists of common words
-    //	free(s1); 
+ 
 }
 
 // for duplicate detection, recommended hash table size is between 5000 to 15000 and bucketsize 10.
 
 MyHashTable::MyHashTable() {
-
-    // system calls are avoided by making these variables static
-    //	hashTable = (int **) calloc(HASH_TABLE_SIZE, sizeof(int*));
-    //	int BLOCK_SIZE = (BUCKET_SIZE+1)*2;
-    //	buckets = (int *)calloc(HASH_TABLE_SIZE*BLOCK_SIZE, sizeof(int)); 
-
+  
     // The first element of a bucket tells the size of it, the second one tells its occupancy
     // then the [key, value] pairs follow this data in the list
 
@@ -69,13 +47,7 @@ MyHashTable::MyHashTable() {
         buckets[i * BLOCK_SIZE + 1] = 0; // size - empty
         hashTable[i] = &buckets[i * BLOCK_SIZE];
     }
-
-    // singleton 
-    //	if (s1 == NULL){
-    // one time allocation of these lists help speed up the whole intersection process
-    //		s1 = (int *) calloc(2* MAX_NUMBER_OF_UNIQUE_WORDS, sizeof(int));
-    //		s2 = &s1[MAX_NUMBER_OF_UNIQUE_WORDS];
-    //	}
+ 
 }
 
 
@@ -126,14 +98,10 @@ void MyHashTable::putAll(int* keys, int count) {
         bucket[1]++;
     }
 }
-
-//int MyHashTable::isElement(int key){  // test whether the element exists in the table or not.
-//	return 1;
-//}
-
+ 
 void MyHashTable::intersect(int * keys, int keys_length, int *list_size, int ** seq_out1, int ** seq_out2) {
 
-    // we dont even need to reset this static array. Its values will be overwritten
+    // we don't even need to reset this static array. Its values will be overwritten
     //memset(s1,0,sizeof(int)*MAX_NUMBER_OF_UNIQUE_WORDS*2);
 
     int common = 0;

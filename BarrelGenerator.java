@@ -66,8 +66,8 @@ public class BarrelGenerator {
 
                 // create LinkedHashMap (with initial capacity specified) for this book to store the tokens and their frequencies.
                 // Using LinkedHashMap as opposed to a HashMap because the order in which the words
-                // are encountered is important. HashMap does not guarentee order. 
-                // In the future, we might want to be clever when specifing the initial capacity by estimating the 
+                // are encountered is important. HashMap does not guarantee order. 
+                // In the future, we might want to be clever when specifying the initial capacity by estimating the 
                 // number of uniq words based on the number of lines in the book.
                 LinkedHashMap<String, Integer> bookMap = new LinkedHashMap<String, Integer>(2048);
 
@@ -76,7 +76,7 @@ public class BarrelGenerator {
                 // loop through each line of the book
                 for (int j = 0; j < words.length; j++) {
 
-                    // remove any "ignore characters" and extra spaces then split by whitespace
+                    // remove any "ignore characters" and extra spaces then split by white space
                     String word[] = ignoreCharsPattern.matcher(words[j]).replaceAll("").trim().split("[\\s+]");
 
                     // count frequencies of each work in a book
@@ -253,39 +253,32 @@ public class BarrelGenerator {
                 flag = arg.substring(0, 2);
                 value = arg.substring(2);
             } catch (Exception ex) {
-                System.err.println("Inavlid command line argument: " + arg);
+                System.err.println("Invalid command line argument: " + arg);
                 usage();
                 System.exit(1);
             }
 
-            switch (flag.toLowerCase()) {
-
-                case "-i":
+			if (flag.toLowerCase().equals("-i")) 
                     inFile = value;
-                    break;
-                case "-o":
+			else if (flag.toLowerCase().equals("-o")) 
                     outFile = value;
-                    break;
-                case "-s":
+			else if (flag.toLowerCase().equals("-s")) 
                     startFileIdx = new Integer(value);
-                    break;
-                case "-e":
+			else if (flag.toLowerCase().equals("-e")) 
                     endFileIdx = new Integer(value);
-                    break;
-                case "-c":
+ 			else if (flag.toLowerCase().equals("-c"))  {
                     try {
                         // using same config file scheme as the recursive alignment tool
                         readConfigFile(value.toString());
                     } catch (Exception ex) {
                         System.err.println("Error reading config file: " + ex.toString());
                     }
-                    break;
-
-                default:
-                    System.err.println("Inavlid command line switch: " + flag);
+			} else {
+                    System.err.println("Invalid command line switch: " + flag);
                     usage();
                     System.exit(1);
-            } // end switch
+            } 
+			
         } // end loop through args
 
         // make sure we have an input file specified
@@ -307,11 +300,10 @@ public class BarrelGenerator {
                 + "<endFileIndex> the row to end before in the input file\n"
                 + "<outputFilename> (optional) is the filename for the output\n"
                 + "<configFile> (optional) file can contain the following arguments on each line:\n"
-                + "\tignorePunctuation=<TRUE|FALSE> (indiates if punctuations should be ignored. Default is TRUE)\n"
-                + "\tignoreNumbers=<TRUE|FALSE> (indiates if numeric characters should be ignored. Default is TRUE)\n";
+                + "\tignorePunctuation=<TRUE|FALSE> (indicates if punctuations should be ignored. Default is TRUE)\n"
+                + "\tignoreNumbers=<TRUE|FALSE> (indicates if numeric characters should be ignored. Default is TRUE)\n";
 
         System.err.println(USAGE);
-
 
     } // end usage()
 }
